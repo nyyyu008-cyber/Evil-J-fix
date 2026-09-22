@@ -1,0 +1,385 @@
+-- =================================================================
+-- EVIL J CONTROL PANEL (Client-Side LocalScript)
+-- Theme: Dark Crimson & Red Neon (Evil Team Aesthetic)
+-- Place inside StarterPlayerScripts or StarterGui
+-- =================================================================
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+-- Script States
+local isGodModeEnabled = false
+local isInfiniteItemsEnabled = false
+-- Clean up older GUI instances if re-executed
+local existingGui = playerGui:FindFirstChild("EvilJ_Gui")
+if existingGui then
+existingGui:Destroy()
+end
+-- ScreenGui Setup
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "EvilJ_Gui"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
+-- Notification Banner Function
+local function sendNotification(msg)
+task.spawn(function()
+local notif = Instance.new("Frame")
+notif.Size = UDim2.new(0, 240, 0, 36)
+notif.Position = UDim2.new(0.5, -120, 0.82, 0)
+notif.BackgroundColor3 = Color3.fromRGB(15, 5, 8)
+notif.BorderSizePixel = 0
+notif.ZIndex = 100
+notif.Parent = screenGui
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 6)
+corner.Parent = notif
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(255, 30, 50)
+stroke.Thickness = 1.5
+stroke.Parent = notif
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, -10, 1, 0)
+label.Position = UDim2.new(0, 5, 0, 0)
+label.BackgroundTransparency = 1
+label.Text = "<b>[EVIL J]</b> " .. msg
+label.RichText = true
+label.TextColor3 = Color3.fromRGB(255, 220, 220)
+label.TextSize = 13
+label.Font = Enum.Font.GothamBold
+label.ZIndex = 101
+label.Parent = notif
+notif.BackgroundTransparency = 1
+label.TextTransparency = 1
+TweenService:Create(notif, TweenInfo.new(0.25), {BackgroundTransparency = 0.1}):Play()
+TweenService:Create(label, TweenInfo.new(0.25), {TextTransparency = 0}):Play()
+task.wait(2.2)
+local fadeOut = TweenService:Create(notif, TweenInfo.new(0.3), {BackgroundTransparency = 1})
+TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+fadeOut:Play()
+fadeOut.Completed:Connect(function()
+notif:Destroy()
+end)
+end)
+end
+-- Main Window Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 310, 0, 430)
+mainFrame.Position = UDim2.new(0.5, -155, 0.5, -215)
+mainFrame.BackgroundColor3 = Color3.fromRGB(12, 10, 14)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = screenGui
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 10)
+frameCorner.Parent = mainFrame
+local frameBorder = Instance.new("UIStroke")
+frameBorder.Color = Color3.fromRGB(220, 20, 45)
+frameBorder.Thickness = 2
+frameBorder.Parent = mainFrame
+-- Top Bar / Title Section
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 48)
+topBar.BackgroundColor3 = Color3.fromRGB(20, 12, 16)
+topBar.BorderSizePixel = 0
+topBar.Parent = mainFrame
+local topDivider = Instance.new("Frame")
+topDivider.Size = UDim2.new(1, 0, 0, 2)
+topDivider.Position = UDim2.new(0, 0, 1, -2)
+topDivider.BackgroundColor3 = Color3.fromRGB(255, 30, 55)
+topDivider.BorderSizePixel = 0
+topDivider.Parent = topBar
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -20, 1, 0)
+titleText.Position = UDim2.new(0, 15, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "⚡ EVIL J HUB"
+titleText.TextColor3 = Color3.fromRGB(255, 40, 60)
+titleText.TextSize = 18
+titleText.Font = Enum.Font.GothamBlack
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.Parent = topBar
+-- Content List Layout
+local container = Instance.new("Frame")
+container.Size = UDim2.new(1, -24, 1, -60)
+container.Position = UDim2.new(0, 12, 0, 54)
+container.BackgroundTransparency = 1
+container.Parent = mainFrame
+local layout = Instance.new("UIListLayout")
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 10)
+layout.Parent = container
+-- Helper Function: Button Creator
+local function createEvilButton(label, layoutOrder, onClick)
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(1, 0, 0, 42)
+btn.BackgroundColor3 = Color3.fromRGB(25, 18, 24)
+btn.Text = label
+btn.TextColor3 = Color3.fromRGB(240, 240, 240)
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 13
+btn.LayoutOrder = layoutOrder
+btn.AutoButtonColor = false
+btn.BorderSizePixel = 0
+btn.Parent = container
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 6)
+btnCorner.Parent = btn
+local btnStroke = Instance.new("UIStroke")
+btnStroke.Color = Color3.fromRGB(60, 30, 40)
+btnStroke.Thickness = 1
+btnStroke.Parent = btn
+btn.MouseEnter:Connect(function()
+TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(45, 22, 32)}):Play()
+TweenService:Create(btnStroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(255, 30, 55)}):Play()
+end)
+btn.MouseLeave:Connect(function()
+TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(25, 18, 24)}):Play()
+TweenService:Create(btnStroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(60, 30, 40)}):Play()
+end)
+btn.MouseButton1Click:Connect(onClick)
+return btn, btnStroke
+end
+-- =================================================================
+-- FEATURE 1: GOD MODE
+-- =================================================================
+local godBtn, godStroke = createEvilButton("🛡️ GOD MODE: OFF", 1, function() end)
+local function enforceGodMode()
+if not isGodModeEnabled then return end
+local char = localPlayer.Character
+if char then
+local hum = char:FindFirstChildOfClass("Humanoid")
+if hum then
+hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+if hum.Health < 999999 then
+hum.MaxHealth = 999999
+hum.Health = 999999
+end
+end
+end
+end
+RunService.RenderStepped:Connect(function()
+if isGodModeEnabled then
+enforceGodMode()
+end
+end)
+godBtn.MouseButton1Click:Connect(function()
+isGodModeEnabled = not isGodModeEnabled
+if isGodModeEnabled then
+godBtn.Text = "🛡️ GOD MODE: ENABLED"
+godBtn.TextColor3 = Color3.fromRGB(255, 50, 70)
+enforceGodMode()
+sendNotification("God Mode Activated!")
+else
+godBtn.Text = "🛡️ GOD MODE: OFF"
+godBtn.TextColor3 = Color3.fromRGB(240, 240, 240)
+local char = localPlayer.Character
+if char then
+local hum = char:FindFirstChildOfClass("Humanoid")
+if hum then
+hum:SetStateEnabled(Enum.HumanoidStateType.Dead, true)
+hum.MaxHealth = 100
+hum.Health = 100
+end
+end
+sendNotification("God Mode Disabled.")
+end
+end)
+-- =================================================================
+-- FEATURE 2: UNLIMITED ITEMS
+-- =================================================================
+local itemBtn, itemStroke = createEvilButton("🎒 UNLIMITED ITEMS: OFF", 2, function() end)
+local function monitorBackpack()
+local backpack = localPlayer:WaitForChild("Backpack")
+backpack.ChildRemoved:Connect(function(child)
+if isInfiniteItemsEnabled and child:IsA("Tool") then
+task.wait(0.05)
+if not backpack:FindFirstChild(child.Name) and localPlayer.Character and not localPlayer.Character:FindFirstChild(child.Name) then
+local clone = child:Clone()
+clone.Parent = backpack
+end
+end
+end)
+end
+task.spawn(monitorBackpack)
+itemBtn.MouseButton1Click:Connect(function()
+isInfiniteItemsEnabled = not isInfiniteItemsEnabled
+if isInfiniteItemsEnabled then
+itemBtn.Text = "🎒 UNLIMITED ITEMS: ENABLED"
+itemBtn.TextColor3 = Color3.fromRGB(255, 50, 70)
+sendNotification("Unlimited Items Enabled!")
+else
+itemBtn.Text = "🎒 UNLIMITED ITEMS: OFF"
+itemBtn.TextColor3 = Color3.fromRGB(240, 240, 240)
+sendNotification("Unlimited Items Disabled.")
+end
+end)
+-- =================================================================
+-- FEATURE 3: SPAWN EVIL J BOOK
+-- =================================================================
+local function createEvilJBook(customName)
+local tool = Instance.new("Tool")
+tool.Name = customName or "Evil J Book"
+tool.RequiresHandle = false
+tool.CanBeDropped = true
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(1.2, 1.6, 0.3)
+handle.Color = Color3.fromRGB(180, 0, 30)
+handle.Material = Enum.Material.Neon
+handle.CanCollide = false
+handle.Massless = true
+handle.Parent = tool
+local selection = Instance.new("SelectionBox")
+selection.Color3 = Color3.fromRGB(255, 30, 30)
+selection.Adornee = handle
+selection.Parent = handle
+tool.Activated:Connect(function()
+sendNotification("Opened: " .. tool.Name)
+end)
+return tool
+end
+createEvilButton("📖 SPAWN EVIL J BOOK", 3, function()
+local backpack = localPlayer:FindFirstChildOfClass("Backpack")
+if backpack then
+local book = createEvilJBook("Evil J Book")
+book.Parent = backpack
+sendNotification("Spawned Evil J Book!")
+end
+end)
+-- =================================================================
+-- FEATURE 4: MULTIPLY / DUPLICATE ITEMS
+-- =================================================================
+local dupFrame = Instance.new("Frame")
+dupFrame.Size = UDim2.new(1, 0, 0, 42)
+dupFrame.BackgroundTransparency = 1
+dupFrame.LayoutOrder = 4
+dupFrame.Parent = container
+local inputAmount = Instance.new("TextBox")
+inputAmount.Size = UDim2.new(0.3, -5, 1, 0)
+inputAmount.BackgroundColor3 = Color3.fromRGB(25, 18, 24)
+inputAmount.Text = "5"
+inputAmount.PlaceholderText = "Qty"
+inputAmount.TextColor3 = Color3.fromRGB(255, 50, 70)
+inputAmount.Font = Enum.Font.GothamBold
+inputAmount.TextSize = 14
+inputAmount.BorderSizePixel = 0
+inputAmount.Parent = dupFrame
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0, 6)
+inputCorner.Parent = inputAmount
+local inputStroke = Instance.new("UIStroke")
+inputStroke.Color = Color3.fromRGB(60, 30, 40)
+inputStroke.Thickness = 1
+inputStroke.Parent = inputAmount
+local dupBtn = Instance.new("TextButton")
+dupBtn.Size = UDim2.new(0.7, 0, 1, 0)
+dupBtn.Position = UDim2.new(0.3, 5, 0, 0)
+dupBtn.BackgroundColor3 = Color3.fromRGB(25, 18, 24)
+dupBtn.Text = "✨ DUPLICATE BOOKS"
+dupBtn.TextColor3 = Color3.fromRGB(240, 240, 240)
+dupBtn.Font = Enum.Font.GothamBold
+dupBtn.TextSize = 12
+dupBtn.AutoButtonColor = false
+dupBtn.BorderSizePixel = 0
+dupBtn.Parent = dupFrame
+local dupBtnCorner = Instance.new("UICorner")
+dupBtnCorner.CornerRadius = UDim.new(0, 6)
+dupBtnCorner.Parent = dupBtn
+local dupBtnStroke = Instance.new("UIStroke")
+dupBtnStroke.Color = Color3.fromRGB(60, 30, 40)
+dupBtnStroke.Thickness = 1
+dupBtnStroke.Parent = dupBtn
+dupBtn.MouseButton1Click:Connect(function()
+local amount = math.clamp(tonumber(inputAmount.Text) or 1, 1, 200)
+local backpack = localPlayer:FindFirstChildOfClass("Backpack")
+if not backpack then return end
+local targetTool = nil
+for _, item in ipairs(backpack:GetChildren()) do
+if item:IsA("Tool") then
+targetTool = item
+break
+end
+end
+if not targetTool and localPlayer.Character then
+for _, item in ipairs(localPlayer.Character:GetChildren()) do
+if item:IsA("Tool") then
+targetTool = item
+break
+end
+end
+end
+for i = 1, amount do
+if targetTool then
+local cloned = targetTool:Clone()
+cloned.Parent = backpack
+else
+local newBook = createEvilJBook("Evil J Book #" .. i)
+newBook.Parent = backpack
+end
+end
+sendNotification("Duplicated " .. tostring(amount) .. " Items!")
+end)
+-- =================================================================
+-- FLOATING TOGGLE BUTTON (MOBILE & PC FRIENDLY)
+-- =================================================================
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Name = "EvilJ_Toggle"
+toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+toggleBtn.Position = UDim2.new(0.02, 0, 0.4, 0)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(15, 5, 8)
+toggleBtn.Text = "EVIL J"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 30, 50)
+toggleBtn.Font = Enum.Font.GothamBlack
+toggleBtn.TextSize = 10
+toggleBtn.Parent = screenGui
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(1, 0)
+toggleCorner.Parent = toggleBtn
+local toggleStroke = Instance.new("UIStroke")
+toggleStroke.Color = Color3.fromRGB(255, 30, 50)
+toggleStroke.Thickness = 2
+toggleStroke.Parent = toggleBtn
+toggleBtn.MouseButton1Click:Connect(function()
+mainFrame.Visible = not mainFrame.Visible
+end)
+-- Keybind Toggle (Right Control or Insert)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+if not gameProcessed then
+if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.Insert then
+mainFrame.Visible = not mainFrame.Visible
+end
+end
+end)
+-- =================================================================
+-- WINDOW DRAGGING FUNCTIONALITY
+-- =================================================================
+local dragging, dragInput, dragStart, startPos
+topBar.InputBegan:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+dragging = true
+dragStart = input.Position
+startPos = mainFrame.Position
+input.Changed:Connect(function()
+if input.UserInputState == Enum.UserInputState.End then
+dragging = false
+end
+end)
+end
+end)
+topBar.InputChanged:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+dragInput = input
+end
+end)
+UserInputService.InputChanged:Connect(function(input)
+if input == dragInput and dragging then
+local delta = input.Position - dragStart
+mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+end)
+sendNotification("Evil J Control Panel Loaded!")
